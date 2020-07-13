@@ -43,6 +43,12 @@ import {store} from './PayOffDateCalculator.vue';
                 this.debtInfo.minPayment = parseFloat(val);
             }
         },
+        created() {
+            this.nameInput = this.debtInfo.name;
+            this.balanceInput = this.debtInfo.balance;
+            this.aprInput = this.debtInfo.apr;
+            this.minPaymentInput = this.debtInfo.minPayment;
+        },
     }
 </script>
 

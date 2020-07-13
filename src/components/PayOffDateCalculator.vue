@@ -1,5 +1,6 @@
 <template>
     <div>
+        <button @click="createTestData">Fill with test data</button>
         <div v-for="debtInfo of debtInfos" :key="debtInfo.id">
             <DebtInfo :id="debtInfo.id"></DebtInfo>   
         </div>
@@ -8,12 +9,14 @@
                 @mouseleave="addDebtButtonHover = false" :class="{isHover:addDebtButtonHover}" @click="addDebtInfo">
         </div>
         <div>
-            <input type="text" v-model="extraMonthlyFundsInput">
+            <label for="extraMonltyFundsInput">Pay Extra per Month</label>
+            <input type="text" v-model="extraMonthlyFundsInput" id="extraMonthlyFundsInput">
         </div>
-        <div @click="calculatePayoffDate">
+        <div @click="calculatePayOffDates">
             <button>Calculate Number of months until you're debt free.</button>
-            <div v-if="showNumberOfMonthsTilldebtFree">
-                {{numberOfMonthsTillDebtFree}}
+            <div v-if="showResults">
+                Min payments only: {{payOffDateMinPayments}}<br />
+                Snow Ball method: {{payOffDateSnowBall}}
             </div>
         </div>
     </div>
@@ -41,7 +44,10 @@ export const store = new Vuex.Store({
                 minPayment: null,
                 apr: null,
             });
-        }
+        },
+        clearDebts(state) {
+            state.debtInfos = [];
+        },
     },
     getters: {
         debtInfos(state) {
@@ -58,6 +64,9 @@ export const store = new Vuex.Store({
         addDebtInfo(state) {
             state.commit("addDebtInfo");
         },
+        clearDebts(state) {
+            state.commit("clearDebts");
+        }
     },
 });
 
@@ -71,15 +80,28 @@ export default {
             addDebtButtonHover: false,
             extraMonthlyFundsInput: null,
             extraMonthlyFunds: 0,
-            numberOfMonthsTillDebtFree: null,
-            showNumberOfMonthsTilldebtFree: false,
+            payOffDateMinPayments: null,
+            showResults: false,
+            payOffDateSnowBall: null,
         }
     },
     methods: {
         addDebtInfo: function () {
             store.dispatch("addDebtInfo");
         },
-        calculatePayoffDate: function () {
+        clearDebts() {
+            store.dispatch("clearDebts");
+        },
+        calculatePayOffDates() {
+            this.payOffDateSnowBall = this.convertMonthsToDate(this.calculatePayOffDateSnowball());
+            this.payOffDateMinPayments = this.convertMonthsToDate(this.calculatePayOffDateMinPayments());
+            this.showResults = true;
+        },
+        convertMonthsToDate(months){
+            // todo
+            return months;
+        },
+        calculatePayOffDateSnowball: function () {
             var sortedDebtsCopy = lodash.cloneDeep(this.debtInfos).sort(function(a,b) {
                 return parseInt(a.balance) - parseInt(b.balance);
             });
@@ -93,8 +115,9 @@ export default {
                 // calc new balances after 1 month interest and pay min payments
                 for (var debt of sortedDebtsCopy) {
                     if (debt.balance > 0){
-                        debt.balance = this.addOneMonthInterest(debt.balance, debt.apr) - debt.minPayment;
-                        monthlyFundsCopy -= debt.minPayment;
+                        var paymentAmount = Math.min(debt.balance, debt.minPayment);
+                        debt.balance = this.addOneMonthInterest(debt.balance, debt.apr) - paymentAmount;
+                        monthlyFundsCopy -= paymentAmount;
                     }
                 }
 
@@ -109,8 +132,23 @@ export default {
                     }
                 }
             }
-            this.numberOfMonthsTillDebtFree = numMonths;
-            this.showNumberOfMonthsTilldebtFree = true;
+            return numMonths;
+        },
+        calculatePayOffDateMinPayments: function () {
+            var debtsCopy = lodash.cloneDeep(this.debtInfos);
+            var numMonths = 0;
+
+            while (this.sumOfBalances(debtsCopy) > 0) {
+                numMonths++;
+                
+                // calc new balances after 1 month interest and min payments
+                for (var debt of debtsCopy) {
+                    if (debt.balance > 0){
+                        debt.balance = this.addOneMonthInterest(debt.balance, debt.apr) - Math.min(debt.balance, debt.minPayment);
+                    }
+                }
+            }
+            return numMonths;
         },
         sumOfMinPayments: function(debts) {
             var sum = 0;
@@ -132,6 +170,8 @@ export default {
             return balance * Math.exp(apr/12);
         },
         createTestData() {
+            this.clearDebts();
+            this.addDebtInfo();
             this.addDebtInfo();
             this.addDebtInfo();
             this.debtInfos[0].name = "stu";
@@ -159,8 +199,7 @@ export default {
         },
     },
     created() {
-        this.addDebtInfo();
-        this.createTestData();
+        //this.addDebtInfo();
     },
 }
 </script>
