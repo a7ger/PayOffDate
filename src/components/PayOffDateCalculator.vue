@@ -1,7 +1,7 @@
 <template>
-    <div>
+    <div  @input="parametersChanged">
         <button @click="createTestData">Fill with test data</button>
-        <div v-for="debtInfo of debtInfos" :key="debtInfo.id" @input="debtInfoChanged">
+        <div v-for="debtInfo of debtInfos" :key="debtInfo.id">
             <DebtInfo :id="debtInfo.id"></DebtInfo>   
         </div>
         <div id="addDebtButon">
@@ -9,17 +9,28 @@
                 @mouseleave="addDebtButtonHover = false" :class="{isHover:addDebtButtonHover}" @click="addDebtInfo">
         </div>
         <div>
-            <label for="extraMonltyFundsInput">Pay Extra per Month</label>
-            <input type="text" v-model="extraMonthlyFundsInput" id="extraMonthlyFundsInput">
+            <div>
+                <label for="extraMonltyFundsInput">Pay Extra per Month</label>
+                <input type="text" v-model="extraMonthlyFundsInput" id="extraMonthlyFundsInput" @input="numMonthsDesiredInput = null">
+            </div>
+            or<br />
+            <div>
+                <label for="numMonthsDesiredInput">Get debt free in how many months</label>
+                <input type="text" v-model="numMonthsDesiredInput" id="numMonthsDesiredInput" @input="extraMonthlyFundsInput = null">
+            </div>
         </div>
-        <div @click="calculatePayOffDates">
-            <button>Calculate Number of months until you're debt free.</button>
+        
+        <div @click="goClicked">
+            <button>GO!</button>
             <div v-if="showResults">
                 Fade out Min payments: {{payOffDateMinPayments}}<br />
                 Snow Ball min payments: {{payOffDateSnowBallNoExtra}}<br />
                 <div v-if="payOffDateSnowBallWithExtra != null">
                     Snow Ball with extra: {{payOffDateSnowBallWithExtra}}
                 </div>
+            </div>
+            <div v-if="extraPaymentNeeded != null">
+                Extra payment per month needed: {{extraPaymentNeeded}}
             </div>
         </div>
     </div>
@@ -56,12 +67,6 @@ export const store = new Vuex.Store({
         debtInfos(state) {
             return state.debtInfos;
         },
-        // sortedDebts(state) {
-        //     var res = lodash.cloneDeep(state.debtInfos).sort(function(a,b) {
-        //         return a.balance - b.balance;
-        //     });
-        //     return res;
-        // },
     },
     actions: {
         addDebtInfo(state) {
@@ -87,6 +92,9 @@ export default {
             showResults: false,
             payOffDateSnowBallNoExtra: null,
             payOffDateSnowBallWithExtra: null,
+            numMonthsDesiredInput: null,
+            numMonthsDesired: null,
+            extraPaymentNeeded: null,
         }
     },
     methods: {
@@ -96,11 +104,18 @@ export default {
         clearDebts() {
             store.dispatch("clearDebts");
         },
+        goClicked() {
+            if (this.numMonthsDesired != null) {
+                this.extraPaymentNeeded = Math.ceil(this.calculateExtraPaymentNeeded(this.numMonthsDesired));
+            } else {
+                this.calculatePayOffDates();
+            }
+        },
         calculatePayOffDates() {
-            this.payOffDateMinPayments = this.convertMonthsToDate(this.calculatePayOffDateMinPayments());
-            this.payOffDateSnowBallNoExtra = this.convertMonthsToDate(this.calculatePayOffDateSnowball(0));
+            this.payOffDateMinPayments = this.convertMonthsToDate(this.calculateNuMonthsMinPayments());
+            this.payOffDateSnowBallNoExtra = this.convertMonthsToDate(this.calculateNumMonthsSnowball(0));
             if (this.extraMonthlyFunds != null && this.extraMonthlyFunds > 0) {
-                this.payOffDateSnowBallWithExtra = this.convertMonthsToDate(this.calculatePayOffDateSnowball(this.extraMonthlyFunds));
+                this.payOffDateSnowBallWithExtra = this.convertMonthsToDate(this.calculateNumMonthsSnowball(this.extraMonthlyFunds));
             } else {
                 this.payOffDateSnowBallWithExtra = null;
             }
@@ -110,7 +125,36 @@ export default {
             // todo
             return months;
         },
-        calculatePayOffDateSnowball(extraMonthlyFunds) {
+        calculateExtraPaymentNeeded(targetMonths) {
+            if (targetMonths <= 0) {
+                alert("You must choose a number of months of 1 or more!");
+            }
+            var maxExtra = this.sumOfBalances(this.debtInfos) - this.sumOfMinPayments(this.debtInfos);
+            var minExtra = 0;
+            var curMonths = this.calculateNumMonthsSnowball(0);
+
+            if (targetMonths > curMonths) {
+                alert("If you just pay your minimum payments you will beat your goal and be debt free in " + curMonths + "!");
+                return;
+            }
+            
+            var curExtra = this.calcCurExtra(maxExtra, minExtra);
+            
+            while((curMonths = this.calculateNumMonthsSnowball(curExtra)) != targetMonths) {
+                if (curMonths > targetMonths) {
+                    minExtra = curExtra;
+                    curExtra = this.calcCurExtra(minExtra, maxExtra);
+                } else {
+                    maxExtra = curExtra;
+                    curExtra = this.calcCurExtra(minExtra, maxExtra);
+                }
+            }
+            return curExtra;
+        },
+        calcCurExtra(minExtra, maxExtra) {
+            return (minExtra + maxExtra) / 2;
+        },
+        calculateNumMonthsSnowball(extraMonthlyFunds) {
             var sortedDebtsCopy = lodash.cloneDeep(this.debtInfos).sort(function(a,b) {
                 return parseInt(a.balance) - parseInt(b.balance);
             });
@@ -143,7 +187,7 @@ export default {
             }
             return numMonths;
         },
-        calculatePayOffDateMinPayments: function () {
+        calculateNuMonthsMinPayments: function () {
             var debtsCopy = lodash.cloneDeep(this.debtInfos);
             var numMonths = 0;
 
@@ -196,7 +240,7 @@ export default {
             this.debtInfos[2].apr = .0299;
             this.debtInfos[2].minPayment = 300;
         },
-        debtInfoChanged() {
+        parametersChanged() {
             this.showResults = false;
         },
     },
@@ -207,14 +251,19 @@ export default {
     },
     watch: {
         extraMonthlyFundsInput(val) {
-            this.showResults = false;
             if (val == ""){
                 this.extraMonthlyFunds = null;
-                console.log("here");
             } else {
                 this.extraMonthlyFunds = parseFloat(val);
             }
         },
+        numMonthsDesiredInput(val) {
+            if (val != "" && val != null){
+                this.numMonthsDesired = Math.floor(parseFloat(val));
+            } else {
+                this.numMonthsDesired = null;
+            }
+        }
     },
     created() {
         //this.addDebtInfo();
