@@ -1,40 +1,56 @@
 <template>
-    <div  @input="parametersChanged">
-        <button @click="createTestData">Fill with test data</button>
-        <div v-for="debtInfo of debtInfos" :key="debtInfo.id">
-            <DebtInfo :id="debtInfo.id"></DebtInfo>   
-        </div>
-        <div id="addDebtButon">
-            <img src="../../public/plus-sign_64.jpg" alt="plus sign button" @mouseover="addDebtButtonHover = true" 
+    <div @input="parametersChanged">
+        <div id="calcBackground">
+            <button @click="createTestData">Fill with test data</button>
+            <div v-for="debtInfo of debtInfos" :key="debtInfo.id">
+                <DebtInfo :id="debtInfo.id"></DebtInfo>   
+            </div>
+            <div id="addDebtButon">
+                <img src="../../public/plus-sign_64.jpg" alt="plus sign button" @mouseover="addDebtButtonHover = true" 
                 @mouseleave="addDebtButtonHover = false" :class="{isHover:addDebtButtonHover}" @click="addDebtInfo">
-        </div>
-        <div>
-            <div>
-                <label for="extraMonltyFundsInput">Pay Extra per Month</label>
-                <input type="text" v-model="extraMonthlyFundsInput" id="extraMonthlyFundsInput" @input="numMonthsDesiredInput = null">
             </div>
-            or<br />
             <div>
-                <label for="numMonthsDesiredInput">Get debt free in how many months</label>
-                <input type="text" v-model="numMonthsDesiredInput" id="numMonthsDesiredInput" @input="extraMonthlyFundsInput = null">
-            </div>
-        </div>
-        
-        <div @click="goClicked">
-            <button>GO!</button>
-            <div v-if="showResults">
-                Fade out Min payments: {{payOffDateMinPayments}}<br />
-                Snow Ball min payments: {{payOffDateSnowBallNoExtra}}<br />
-                <div v-if="payOffDateSnowBallWithExtra != null">
-                    Snow Ball with extra: {{payOffDateSnowBallWithExtra}}
+                <div>
+                    <label for="extraMonltyFundsInput">Pay Extra per Month</label>
+                    <input type="text" v-model="extraMonthlyFundsInput" id="extraMonthlyFundsInput" @input="numMonthsDesiredInput = null">
+                </div>
+                or<br />
+                <div>
+                    <label for="numMonthsDesiredInput">Get debt free in how many months</label>
+                    <input type="text" v-model="numMonthsDesiredInput" id="numMonthsDesiredInput" @input="extraMonthlyFundsInput = null">
                 </div>
             </div>
-            <div v-if="extraPaymentNeeded != null">
-                Extra payment per month needed: {{extraPaymentNeeded}}
+            
+            <div @click="goClicked">
+                <button>GO!</button>
+                <div v-if="showResults">
+                    Fade out Min payments: {{payOffDateMinPayments}}<br />
+                    Snow Ball min payments: {{payOffDateSnowBallNoExtra}}<br />
+                    <div v-if="payOffDateSnowBallWithExtra != null">
+                        Snow Ball with extra: {{payOffDateSnowBallWithExtra}}
+                    </div>
+                </div>
+                <div v-if="extraPaymentNeeded != null">
+                    Extra payment per month needed: {{extraPaymentNeeded}}
+                </div>
             </div>
         </div>
     </div>
 </template>
+
+<style scoped>
+
+.isHover {
+    cursor: pointer;
+}
+
+#calcBackground {
+    background-color: #454753;
+    padding: 1.25rem;
+    border-radius: 1rem;
+}
+
+</style>
 
 <script>
 
@@ -270,11 +286,3 @@ export default {
     },
 }
 </script>
-
-<style scoped>
-
-.isHover{
-    cursor: pointer;
-}
-
-</style>
