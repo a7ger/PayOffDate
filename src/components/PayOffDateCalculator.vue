@@ -1,37 +1,41 @@
 <template>
-    <div @input="parametersChanged">
-        <div id="calcBackground">
-            <button @click="createTestData">Fill with test data</button>
-            <div v-for="debtInfo of debtInfos" :key="debtInfo.id">
-                <DebtInfo :id="debtInfo.id"></DebtInfo>   
+    <div>
+        <div id="calc-background">
+            <div id="debt-list-div">
+                <DebtInfo v-for="debt in debts" :key="debt.id" :id="debt.id"></DebtInfo>
+                <button id="add-debtInfo-button" @click="addDebtInfo">+</button>
             </div>
-            <div id="addDebtButon">
-                <img src="../../public/plus-sign_64.jpg" alt="plus sign button" @mouseover="addDebtButtonHover = true" 
-                @mouseleave="addDebtButtonHover = false" :class="{isHover:addDebtButtonHover}" @click="addDebtInfo">
-            </div>
-            <div>
-                <div>
-                    <label for="extraMonltyFundsInput">Pay Extra per Month</label>
-                    <input type="text" v-model="extraMonthlyFundsInput" id="extraMonthlyFundsInput" @input="numMonthsDesiredInput = null">
-                </div>
-                or<br />
-                <div>
-                    <label for="numMonthsDesiredInput">Get debt free in how many months</label>
-                    <input type="text" v-model="numMonthsDesiredInput" id="numMonthsDesiredInput" @input="extraMonthlyFundsInput = null">
-                </div>
-            </div>
-            
-            <div @click="goClicked">
-                <button>GO!</button>
-                <div v-if="showResults">
-                    Fade out Min payments: {{payOffDateMinPayments}}<br />
-                    Snow Ball min payments: {{payOffDateSnowBallNoExtra}}<br />
-                    <div v-if="payOffDateSnowBallWithExtra != null">
-                        Snow Ball with extra: {{payOffDateSnowBallWithExtra}}
+            <div id="bottom-half-div">
+                <div id="controls-div">
+                    <div id="variables-div">
+                        <div>
+                            <div id="desired-months-div">
+                                <div id="desired-months-label-div">
+
+                                </div>
+                                <div id="desired-months-input-div">
+
+                                </div>
+                            </div>
+                            <div id="variable-or-div">
+
+                            </div>
+                            <div id="desired-extra-payment-div">
+                                <div id="desired-extra-payment-label-div">
+
+                                </div>
+                                <div id="desired-extra-payment-input-div">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="go-button-div">
+
                     </div>
                 </div>
-                <div v-if="extraPaymentNeeded != null">
-                    Extra payment per month needed: {{extraPaymentNeeded}}
+                <div id="results-div">
+                    hello
                 </div>
             </div>
         </div>
@@ -40,14 +44,38 @@
 
 <style scoped>
 
-.isHover {
+* {
+    outline: none;
+}
+
+.is-hover {
     cursor: pointer;
 }
 
-#calcBackground {
+#results-div {
+    border-radius: .3125rem;
+    background-color: white;
+    width: 51%;
+}
+
+#calc-background {
     background-color: #454753;
     padding: 1.25rem;
     border-radius: 1rem;
+}
+
+#add-debtInfo-button {
+    background-color: transparent;
+    color: #BDBDBD;
+    font-weight: bold;
+    font-size: 1.125rem;
+    border-style: none;
+    outline: none;
+    border-radius: 50%;
+}
+
+#add-debtInfo-button:active {
+    text-shadow: .04rem .04rem #ffffff;
 }
 
 </style>
@@ -63,12 +91,12 @@ Vue.use(Vuex);
 
 export const store = new Vuex.Store({
     state: {
-        debtInfos: [],
+        debts: [],
     },
     mutations: {
         addDebtInfo(state) {
-            state.debtInfos.push({
-                id: state.debtInfos.length + 1,
+            state.debts.push({
+                id: state.debts.length + 1,
                 name: null,
                 balance: null,
                 minPayment: null,
@@ -76,12 +104,12 @@ export const store = new Vuex.Store({
             });
         },
         clearDebts(state) {
-            state.debtInfos = [];
+            state.debts = [];
         },
     },
     getters: {
-        debtInfos(state) {
-            return state.debtInfos;
+        debts(state) {
+            return state.debts;
         },
     },
     actions: {
@@ -145,7 +173,7 @@ export default {
             if (targetMonths <= 0) {
                 alert("You must choose a number of months of 1 or more!");
             }
-            var maxExtra = this.sumOfBalances(this.debtInfos) - this.sumOfMinPayments(this.debtInfos);
+            var maxExtra = this.sumOfBalances(this.debts) - this.sumOfMinPayments(this.debts);
             var minExtra = 0;
             var curMonths = this.calculateNumMonthsSnowball(0);
 
@@ -171,7 +199,7 @@ export default {
             return (minExtra + maxExtra) / 2;
         },
         calculateNumMonthsSnowball(extraMonthlyFunds) {
-            var sortedDebtsCopy = lodash.cloneDeep(this.debtInfos).sort(function(a,b) {
+            var sortedDebtsCopy = lodash.cloneDeep(this.debts).sort(function(a,b) {
                 return parseInt(a.balance) - parseInt(b.balance);
             });
             var numMonths = 0;
@@ -204,7 +232,7 @@ export default {
             return numMonths;
         },
         calculateNuMonthsMinPayments: function () {
-            var debtsCopy = lodash.cloneDeep(this.debtInfos);
+            var debtsCopy = lodash.cloneDeep(this.debts);
             var numMonths = 0;
 
             while (this.sumOfBalances(debtsCopy) > 0) {
@@ -239,30 +267,29 @@ export default {
             return balance * Math.exp(apr/12);
         },
         createTestData() {
-            this.clearDebts();
             this.addDebtInfo();
+            this.debts[0].name = "stu";
+            this.debts[0].balance = 54000;
+            this.debts[0].apr = .065;
+            this.debts[0].minPayment = 400;
             this.addDebtInfo();
+            this.debts[1].name = "cc";
+            this.debts[1].balance = 4500;
+            this.debts[1].apr = .2299;
+            this.debts[1].minPayment = 125;
             this.addDebtInfo();
-            this.debtInfos[0].name = "stu";
-            this.debtInfos[0].balance = 54000;
-            this.debtInfos[0].apr = .065;
-            this.debtInfos[0].minPayment = 400;
-            this.debtInfos[1].name = "cc";
-            this.debtInfos[1].balance = 4500;
-            this.debtInfos[1].apr = .2299;
-            this.debtInfos[1].minPayment = 125;
-            this.debtInfos[2].name = "car";
-            this.debtInfos[2].balance = 4000;
-            this.debtInfos[2].apr = .0299;
-            this.debtInfos[2].minPayment = 300;
+            this.debts[2].name = "car";
+            this.debts[2].balance = 4000;
+            this.debts[2].apr = .0299;
+            this.debts[2].minPayment = 300;
         },
         parametersChanged() {
             this.showResults = false;
         },
     },
     computed: {
-        debtInfos() {
-            return store.getters.debtInfos;
+        debts() {
+            return store.getters.debts;
         },
     },
     watch: {
@@ -282,7 +309,7 @@ export default {
         }
     },
     created() {
-        //this.addDebtInfo();
+        this.createTestData();
     },
 }
 </script>

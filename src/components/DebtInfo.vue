@@ -26,7 +26,7 @@ import {store} from './PayOffDateCalculator.vue';
         },
         computed: {
             debtInfo() {
-                return store.getters.debtInfos.find(di => di.id == this.id);
+                return store.getters.debts.find(di => di.id == this.id);
             }
         },
         watch: {
