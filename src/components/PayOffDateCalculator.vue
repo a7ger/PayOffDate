@@ -8,34 +8,31 @@
             <div id="bottom-half-div">
                 <div id="controls-div">
                     <div id="variables-div">
-                        <div>
-                            <div id="desired-months-div">
-                                <div id="desired-months-label-div">
-
-                                </div>
-                                <div id="desired-months-input-div">
-
-                                </div>
+                        <div id="desired-months-div">
+                            <div id="desired-months-label-div" class="variable-label-div">
+                                <label for="desired-months-input">Payoff in # months</label>
                             </div>
-                            <div id="variable-or-div">
-
+                            <div id="desired-months-input-div">
+                                <input type="text" id="desired-months-input" class="variable-input">
                             </div>
-                            <div id="desired-extra-payment-div">
-                                <div id="desired-extra-payment-label-div">
-
-                                </div>
-                                <div id="desired-extra-payment-input-div">
-
-                                </div>
+                        </div>
+                        <div id="variable-or-div">
+                            or
+                        </div>
+                        <div id="desired-extra-payment-div">
+                            <div id="desired-extra-payment-label-div" class="variable-label-div">
+                                <label for="desired-extra-payment-input">Extra $ per month</label>
+                            </div>
+                            <div id="desired-extra-payment-input-div">
+                                <input type="text" id="desired-extra-payment-input" class="variable-input">
                             </div>
                         </div>
                     </div>
-                    <div id="go-button-div">
-
+                    <div id="calculate-button-div">
+                        <button id="calculate-button">Calculate</button>
                     </div>
                 </div>
                 <div id="results-div">
-                    hello
                 </div>
             </div>
         </div>
@@ -45,7 +42,46 @@
 <style scoped>
 
 * {
+    font-family: "Roboto";
+}
+
+.variable-label-div {
+    display: flex;
+    justify-content: center;
+}
+
+#dumb {
+    background-color: black;
+}
+
+.variable-input {
+    height: 35px;
+    border-radius: 5px;
+    border-style: none;
+    margin-top: 4px;
+}
+
+label {
+    font-size: 12px;
+    color: #BDBDBD;
+    justify-self: center;
+}
+
+#calculate-button {
+    margin-top: 12px;
+    background-color: #00A3FF;
+    border-radius: .3125rem;
     outline: none;
+    border: none;
+    height: 2.1875rem;
+    width: 100%;
+}
+
+#bottom-half-div {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-top: 20px;
 }
 
 .is-hover {
@@ -55,32 +91,63 @@
 #results-div {
     border-radius: .3125rem;
     background-color: white;
-    width: 51%;
+    width: 57%;
+    display: flex;
+    justify-self: right;
 }
 
 #calc-background {
     background-color: #454753;
     padding: 1.25rem;
     border-radius: 1rem;
+    width: 50rem;
 }
 
 #add-debtInfo-button {
     background-color: transparent;
     color: #BDBDBD;
     font-weight: bold;
-    font-size: 1.125rem;
+    font-size: 30px;
     border-style: none;
     outline: none;
     border-radius: 50%;
+    margin-left: -6px;
 }
 
 #add-debtInfo-button:active {
     text-shadow: .04rem .04rem #ffffff;
 }
 
+#controls-div {
+    margin-right: 1.25rem;
+    flex: 1;
+}
+
+#desired-months-div {
+    width: 7.5rem;
+}
+
+#desired-extra-payment-div {
+    width: 7.5rem;
+}
+
+#variables-div {
+    display: flex;
+}
+
+#variable-or-div {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    color: #BDBDBD;
+    padding-bottom: 11px;
+}
+
 </style>
 
 <script>
+
 
 import DebtInfo from './DebtInfo.vue';
 import Vue from 'vue';
@@ -106,6 +173,18 @@ export const store = new Vuex.Store({
         clearDebts(state) {
             state.debts = [];
         },
+        removeDebt(state, id) {
+            console.log(id);
+            var debt = state.debts.find(debt => debt.id === id);
+            console.log("item found: " + JSON.stringify(debt));
+            var index = state.debts.indexOf(debt);
+            console.log("index: " + index);
+            console.log("array before: " + JSON.stringify(this.state.debts));
+            if (index >= 0) {
+                state.debts.splice(index, 1);
+            }
+            console.log("array after: " + JSON.stringify(this.state.debts));
+        },
     },
     getters: {
         debts(state) {
@@ -118,7 +197,10 @@ export const store = new Vuex.Store({
         },
         clearDebts(state) {
             state.commit("clearDebts");
-        }
+        },
+        removeDebt(state, id) {
+            state.commit("removeDebt", id);
+        },
     },
 });
 
@@ -309,7 +391,7 @@ export default {
         }
     },
     created() {
-        this.createTestData();
+        //this.createTestData();
     },
 }
 </script>

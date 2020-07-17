@@ -18,6 +18,16 @@ export default {
 }
 </script>
 
+<style>
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+* {
+    outline: none;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+</style>
+
 <style scoped>
 #app {
   display: flex;
