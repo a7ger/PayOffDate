@@ -41,10 +41,6 @@
 
 <style scoped>
 
-* {
-    font-family: "Roboto";
-}
-
 .variable-label-div {
     display: flex;
     justify-content: center;
@@ -63,7 +59,6 @@
 
 label {
     font-size: 12px;
-    color: #BDBDBD;
     justify-self: center;
 }
 
@@ -75,6 +70,7 @@ label {
     border: none;
     height: 2.1875rem;
     width: 100%;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 }
 
 #bottom-half-div {
@@ -97,7 +93,7 @@ label {
 }
 
 #calc-background {
-    background-color: #454753;
+    background-color: #EDEDED;
     padding: 1.25rem;
     border-radius: 1rem;
     width: 50rem;
@@ -105,7 +101,6 @@ label {
 
 #add-debtInfo-button {
     background-color: transparent;
-    color: #BDBDBD;
     font-weight: bold;
     font-size: 30px;
     border-style: none;
@@ -140,7 +135,6 @@ label {
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    color: #BDBDBD;
     padding-bottom: 11px;
 }
 
@@ -150,9 +144,10 @@ label {
 
 
 import DebtInfo from './DebtInfo.vue';
+import lodash from 'lodash';
+
 import Vue from 'vue';
 import Vuex from 'vuex';
-import lodash from 'lodash';
 
 Vue.use(Vuex);
 

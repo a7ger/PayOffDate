@@ -1,9 +1,6 @@
 <template>
     <div>
         <div class="row">
-            <div class="idDiv">
-                {{debtInfo.id}}.
-            </div>
             <div class="row-input-section">
                 <div class="label-input-div">
                     <label for="nameInput" id="nameInputLabel">Name</label>
@@ -30,17 +27,6 @@
 </template>
 
 <style scoped>
-
-    .idDiv {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        color: #BDBDBD;
-        height: 35px;
-        width: 37px;
-        font-weight: bold;
-        font-size: 18px;
-    }
 
     #nameInputLabel {
         width: 55px;
@@ -81,7 +67,6 @@
 
     #remove-button {
         background-color: transparent;
-        color: #BDBDBD;
         border-style: none;
         font-size: 20px;
         font-weight: bold;

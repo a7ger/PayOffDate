@@ -21,10 +21,16 @@ export default {
 <style>
 @import url('https://fonts.googleapis.com/css?family=Roboto');
 
+:root {
+    --dark-font-color: #5F5F5F;
+}
+
 * {
     outline: none;
     max-width: 100%;
     box-sizing: border-box;
+    font-family: 'Roboto';
+    color: var(--dark-font-color);
 }
 </style>
 
