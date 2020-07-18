@@ -3,24 +3,27 @@
         <div class="row">
             <div class="row-input-section">
                 <div class="label-input-div">
-                    <label for="nameInput" id="nameInputLabel">Name</label>
-                    <input type="text" id="nameInput" v-model="nameInput">
+                    <label for="nameInput" class="nameInputLabel">Name</label>
+                    <input type="text" class="nameInput" v-model="nameInput">
                 </div>
                 <div class="label-input-div">
-                    <label for="balanceInput" id="balanceInputLabel">Balance</label>
-                    <input type="text" id="balanceInput" v-model="balanceInput">
+                    <label for="balanceInput" class="balanceInputLabel">Balance</label>
+                    <input type="text" class="balanceInput" v-model="balanceInput">
                 </div>
                 <div class="label-input-div">
-                    <label for="aprInput" id="aprInputLabel">APR</label>
-                    <input type="text" id="aprInput" v-model="minPaymentInput">
+                    <label for="aprInput" class="aprInputLabel">APR</label>
+                    <input type="text" class="aprInput" v-model="aprInput">
+                    <div class="aprPercentSignDiv">
+                        %
+                    </div>
                 </div>
                 <div class="label-input-div">
-                    <label for="minPaymentInput" id="minPaymentInputLabel">Min Pmnt</label>
-                    <input type="text" id="minPaymentInput" v-model="aprInput">
+                    <label for="minPaymentInput" class="minPaymentInputLabel">Min Pmnt</label>
+                    <input type="text" class="minPaymentInput" v-model="minPaymentInput">
                 </div>
             </div>
-            <div id="remove-button-div">
-                <button id="remove-button" @click="removeDebt">✖</button>
+            <div class="remove-button-div">
+                <button class="remove-button" @click="removeDebt">✖</button>
             </div>
         </div>
     </div>
@@ -28,19 +31,28 @@
 
 <style scoped>
 
-    #nameInputLabel {
+    .aprPercentSignDiv {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        margin-left: -30px;
+        margin-right: 19px;
+    }
+
+    .nameInputLabel {
         width: 55px;
     }
 
-    #balanceInputLabel {
+    .balanceInputLabel {
         width: 60px;
     }
 
-    #aprInputLabel {
+    .aprInputLabel {
         width: 41px;
     }
 
-    #minPaymentInputLabel {
+    .minPaymentInputLabel {
         width: 67px;
     }
 
@@ -65,14 +77,14 @@
         flex-direction: row;
     }
 
-    #remove-button {
+    .remove-button {
         background-color: transparent;
         border-style: none;
-        font-size: 20px;
+        font-size: 12px;
         font-weight: bold;
     }
 
-    #remove-button-div {
+    .remove-button-div {
         display: flex;
         align-items: flex-start;
         justify-content: center;
@@ -90,21 +102,23 @@
         border-style: none;
         height: 35px;
         margin-right: 16px;
+        text-align: center;
     }
 
-    #nameInput {
+    .nameInput {
         width: 138px;
     }
-    #balanceInput {
-        width: 117px;
+    .balanceInput {
+        width: 133px;
     }
 
-    #aprInput {
-        width: 68px;
+    .aprInput {
+        width: 85px;
+        padding-right: 16px;
     }
 
-    #minPaymentInput {
-        width: 100px;
+    .minPaymentInput {
+        width: 115px;
         margin-right: 0px;
     }
 
@@ -112,7 +126,7 @@
 
 <script>
 
-import {store} from './PayOffDateCalculator.vue';
+import store from '@/stores/CalcStore.js';
 
     export default {
         name: 'DebtInfo',
@@ -145,7 +159,7 @@ import {store} from './PayOffDateCalculator.vue';
                 this.debtInfo.balance = parseFloat(val);
             },
             aprInput(val) {
-                this.debtInfo.apr = parseFloat(val);
+                this.debtInfo.apr = parseFloat(val)/100.00; // divide by 100 to convert from percentage to decimal
             },
             minPaymentInput(val) {
                 this.debtInfo.minPayment = parseFloat(val);
