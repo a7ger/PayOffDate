@@ -2,7 +2,7 @@
     <div>
         <div id="calc-background">
             <div id="debt-list-div">
-                <DebtInfo v-for="debt in debts" :key="debt.id" :id="debt.id"></DebtInfo>
+                <DebtInfo v-for="debt in debts" :key="debt.id" :id="debt.id" @input="resetResults" @delete="resetResults"></DebtInfo>
                 <button id="add-debtInfo-button" @click="addDebtInfo" @mouseover="addDebtButtonHover = true" @mouseleave="addDebtButtonHover = false" :class="{isHover:addDebtButtonHover}">+</button>
             </div>
             <div id="bottom-half-div">
@@ -13,7 +13,7 @@
                                 <label for="desired-months-input">Payoff in # months</label>
                             </div>
                             <div id="desired-months-input-div">
-                                <input type="text" id="desired-months-input" class="variable-input" v-model="numMonthsDesiredInput" @input="extraMonthlyFundsInput = null">
+                                <input type="text" id="desired-months-input" class="variable-input" v-model="numMonthsDesiredInput" @input="desiredMonthsInputChanged">
                             </div>
                         </div>
                         <div id="variable-or-div">
@@ -24,7 +24,7 @@
                                 <label for="desired-extra-payment-input">Extra $ per month</label>
                             </div>
                             <div id="desired-extra-payment-input-div">
-                                <input type="text" id="desired-extra-payment-input" class="variable-input" v-model="extraMonthlyFundsInput" @input="numMonthsDesiredInput = null">
+                                <input type="text" id="desired-extra-payment-input" class="variable-input" v-model="extraMonthlyFundsInput" @input="desiredExtraPmntInputChanged">
                             </div>
                         </div>
                     </div>
@@ -33,16 +33,18 @@
                     </div>
                 </div>
                 <div id="results-div">
-                    <div v-if="showResults">
-                        Fade out Min payments: {{payOffDateMinPayments}}<br />
-                        Snow Ball min payments: {{payOffDateSnowBallNoExtra}}<br />
-                        <div v-if="payOffDateSnowBallWithExtra != null">
-                            Snow Ball with extra: {{payOffDateSnowBallWithExtra}}
-                        </div>
+                    <div v-if="results.payOffDateMinPayments">
+                        Fade out Min payments: {{results.payOffDateMinPayments}}<br />
                     </div>
-                </div>
-                <div v-if="extraPaymentNeeded != null">
-                    Extra payment per month needed: {{extraPaymentNeeded}}
+                    <div v-if="results.payOffDateSnowBallNoExtra">
+                        Snow Ball min payments: {{results.payOffDateSnowBallNoExtra}}<br />
+                    </div>
+                    <div v-if="results.payOffDateSnowBallWithExtra">
+                        Snow Ball with extra: {{results.payOffDateSnowBallWithExtra}}
+                    </div>
+                    <div v-if="results.extraPaymentNeeded">
+                        Extra payment per month needed: {{results.extraPaymentNeeded}}
+                    </div>
                 </div>
             </div>
         </div>
@@ -102,8 +104,7 @@
         border-radius: .3125rem;
         background-color: white;
         width: 57%;
-        display: flex;
-        justify-self: right;
+        padding: 10px;
     }
 
     #calc-background {
@@ -150,17 +151,15 @@
         justify-content: center;
         align-items: flex-end;
         padding-bottom: 11px;
-}
-
+    }
 </style>
 
-<script>
 
+<script>
 
 import DebtInfo from './DebtInfo.vue';
 import lodash from 'lodash';
 import store from '@/stores/CalcStore.js';
-
 
 export default {
     name: 'PayOffDateCalculator',
@@ -169,45 +168,53 @@ export default {
     },
     data() {
         return {
+            results: {
+                payOffDateMinPayments: null,
+                payOffDateSnowBallNoExtra: null,
+                payOffDateSnowBallWithExtra: null,
+                extraPaymentNeeded: null,
+            },
             addDebtButtonHover: false,
             extraMonthlyFundsInput: null,
             extraMonthlyFunds: 0,
-            payOffDateMinPayments: null,
-            showResults: false,
-            payOffDateSnowBallNoExtra: null,
-            payOffDateSnowBallWithExtra: null,
             numMonthsDesiredInput: null,
             numMonthsDesired: null,
-            extraPaymentNeeded: null,
         }
     },
     methods: {
         addDebtInfo() {
+            this.resetResults();
             store.dispatch("addDebtInfo");
         },
         clearDebts() {
             store.dispatch("clearDebts");
         },
         goClicked() {
-            if (this.numMonthsDesired != null) {
-                this.extraPaymentNeeded = Math.ceil(this.calculateExtraPaymentNeeded(this.numMonthsDesired));
+            this.resetResults();
+            if (this.numMonthsDesired) {
+                this.results.extraPaymentNeeded = Math.ceil(this.calculateExtraPaymentNeeded(this.numMonthsDesired));
             } else {
                 this.calculatePayOffDates();
             }
         },
         calculatePayOffDates() {
-            this.payOffDateMinPayments = this.convertMonthsToDate(this.calculateNumMonthsMinPayments());
-            this.payOffDateSnowBallNoExtra = this.convertMonthsToDate(this.calculateNumMonthsSnowball(0));
+            this.results.payOffDateMinPayments = this.convertMonthsToDate(this.calculateNumMonthsMinPayments());
+            this.results.payOffDateSnowBallNoExtra = this.convertMonthsToDate(this.calculateNumMonthsSnowball(0));
             if (this.extraMonthlyFunds != null && this.extraMonthlyFunds > 0) {
-                this.payOffDateSnowBallWithExtra = this.convertMonthsToDate(this.calculateNumMonthsSnowball(this.extraMonthlyFunds));
+                this.results.payOffDateSnowBallWithExtra = this.convertMonthsToDate(this.calculateNumMonthsSnowball(this.extraMonthlyFunds));
             } else {
-                this.payOffDateSnowBallWithExtra = null;
+                this.results.payOffDateSnowBallWithExtra = null;
             }
-            this.showResults = true;
         },
-        convertMonthsToDate(months){
-            // todo
-            return months;
+        convertMonthsToDate(numMonths){
+            if (!numMonths) {
+                return null;
+            }
+            var today = new Date();
+            var newDate = new Date();
+            newDate.setMonth(today.getMonth() + numMonths);
+            
+            return newDate.toLocaleDateString();
         },
         calculateExtraPaymentNeeded(targetMonths) {
             if (targetMonths <= 0) {
@@ -252,14 +259,14 @@ export default {
                 // calc new balances after 1 month interest and pay min payments
                 for (var debt of sortedDebtsCopy) {
                     if (debt.balance >= 0.01){
-                        var paymentAmount = Math.min(debt.balance, debt.minPayment);
                         debt.balance = this.addOneMonthInterest(debt.balance, debt.apr);
-                        if (debt.balance <= debt.minimum) {
+                        if (debt.balance <= debt.minPayment) {
                             debt.balance = 0;
+                            monthlyFundsCopy = this.roundToNumDecimals(monthlyFundsCopy - debt.balance, 3);
                         } else {
-                            debt.balance = this.roundToNumDecimals(debt.balance - paymentAmount, 3);
+                            debt.balance = this.roundToNumDecimals(debt.balance - debt.minPayment, 3);
+                            monthlyFundsCopy = this.roundToNumDecimals(monthlyFundsCopy - debt.minPayment, 3);
                         }
-                        monthlyFundsCopy = this.roundToNumDecimals(monthlyFundsCopy - paymentAmount, 3);
                     }
                 }
 
@@ -267,13 +274,13 @@ export default {
                 while (monthlyFundsCopy >= 0.01 && this.sumOfBalances(sortedDebtsCopy) >= 0.01) {
                     for (var debt_ of sortedDebtsCopy) {
                         if (debt_.balance >= 0.01){
-                            var creditAmount = Math.min(debt_.balance, monthlyFundsCopy);
                             if (debt_.balance <= monthlyFundsCopy) {
                                 debt_.balance = 0;
+                                monthlyFundsCopy = this.roundToNumDecimals(monthlyFundsCopy - debt_.balance, 3);
                             } else {
-                                debt_.balance = this.roundToNumDecimals( debt_.balance - creditAmount);
+                                debt_.balance = this.roundToNumDecimals(debt_.balance - monthlyFundsCopy, 3);
+                                monthlyFundsCopy = 0;
                             }
-                            monthlyFundsCopy = this.roundToNumDecimals(monthlyFundsCopy - creditAmount);
                         }
                     }
                 }
@@ -342,8 +349,18 @@ export default {
             val = Math.floor(val);
             return val / Math.pow(10, numDecimals);
         },
-        parametersChanged() {
-            this.showResults = false;
+        resetResults() {
+            //console.log("before: " + JSON.stringify(this.results));
+            Object.keys(this.results).forEach(resultName => this.results[resultName] = null);
+            //console.log("after: " + JSON.stringify(this.results));
+        },
+        desiredExtraPmntInputChanged() {
+            this.numMonthsDesiredInput = null;
+            this.resetResults();
+        },
+        desiredMonthsInputChanged() {
+            this.extraMonthlyFundsInput = null;
+            this.resetResults();
         },
     },
     computed: {
@@ -365,12 +382,13 @@ export default {
             } else {
                 this.numMonthsDesired = null;
             }
-        }
+        },
+        // reset results on debts.count changing !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     },
     created() {
-        store.dispatch("clearDebts");
-        this.createTestData();
-        //this.addDebtInfo();
+        //store.dispatch("clearDebts");
+        //this.createTestData();
+        this.addDebtInfo();
     },
 }
 </script>

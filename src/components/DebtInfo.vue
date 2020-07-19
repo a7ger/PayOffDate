@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="row">
-            <div class="row-input-section">
+            <div class="row-input-section" @input="$emit('input')">
                 <div class="label-input-div">
                     <label for="nameInput" class="nameInputLabel">Name</label>
                     <input type="text" class="nameInput" v-model="nameInput">
@@ -143,6 +143,7 @@ import store from '@/stores/CalcStore.js';
         },
         methods: {
             removeDebt() {
+                this.$emit('delete');
                 store.dispatch("removeDebt", this.id);
             },
         },
