@@ -3,7 +3,7 @@
         <div id="calc-background">
             <div id="debt-list-div">
                 <DebtInfo v-for="debt in debts" :key="debt.id" :id="debt.id" @input="resetResults" @delete="resetResults"></DebtInfo>
-                <button id="add-debtInfo-button" @click="addDebtInfo" @mouseover="addDebtButtonHover = true" @mouseleave="addDebtButtonHover = false" :class="{isHover:addDebtButtonHover}">+</button>
+                <button id="add-debtInfo-button" @click="addDebtInfo">+</button>
             </div>
             <div id="bottom-half-div">
                 <div id="controls-div">
@@ -105,6 +105,10 @@
         background-color: white;
         width: 57%;
         padding: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
 
     #calc-background {
@@ -115,17 +119,9 @@
     }
 
     #add-debtInfo-button {
-        background-color: transparent;
-        font-weight: bold;
         font-size: 30px;
         border-style: none;
-        outline: none;
-        border-radius: 50%;
-        margin-left: -6px;
-    }
-
-    #add-debtInfo-button:active {
-        text-shadow: .04rem .04rem #ffffff;
+        padding: 0px;
     }
 
     #controls-div {
@@ -189,7 +185,29 @@ export default {
         clearDebts() {
             store.dispatch("clearDebts");
         },
+        isValidDebts(debts) {
+            if (!debts.every(debt => {
+                if (!debt.name || !debt.balance || !debt.apr || !debt.minPayment) {
+                    return false;
+                } else {
+                    return true;
+                }
+            })) {
+                alert("All fields for all debts must be filled out.")
+                return false;
+            }
+
+            var name = [];
+            if (!this.debts.every(debt => this.isValidMinPmnt(debt, name)) && name.length > 0) {
+                alert("The minimum paymnet for your debt named \"" + name[0] + "\" is too low. Your balance would never decrease.");
+                return false;
+            }
+            return true;
+        },
         goClicked() {
+            if (!this.isValidDebts(this.debts)) {
+                return;
+            }
             this.resetResults();
             if (this.numMonthsDesired) {
                 this.results.extraPaymentNeeded = Math.ceil(this.calculateExtraPaymentNeeded(this.numMonthsDesired));
@@ -362,6 +380,15 @@ export default {
             this.extraMonthlyFundsInput = null;
             this.resetResults();
         },
+        isValidMinPmnt(debt, name) {
+            var newBalance = this.addOneMonthInterest(debt.balance, debt.apr);
+            newBalance -= debt.minPayment;
+            if (newBalance >= debt.balance) {
+                name.push(debt.name);
+                return false;
+            }
+            return true;
+        }
     },
     computed: {
         debts() {
