@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <Authenticator></Authenticator>
     <PayOffDateCalculator id="calc"></PayOffDateCalculator>
     <!-- <todo></todo> -->
   </div>
@@ -8,12 +9,13 @@
 
 <script>
 import PayOffDateCalculator from './components/PayOffDateCalculator.vue'
-// import todo from './components/todo.vue'
+import Authenticator from './components/Authenticator.vue'
+
 export default {
   name: 'App',
   components: {
-    PayOffDateCalculator
-    // todo,
+    PayOffDateCalculator,
+    Authenticator,
   },
 }
 </script>

@@ -126,7 +126,7 @@
 
 <script>
 
-import store from '@/stores/CalcStore.js';
+    import store from '@/stores/CalcStore.js';
 
     export default {
         name: 'DebtInfo',
