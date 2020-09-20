@@ -184,7 +184,7 @@ export default {
         },
         isValidDebts(debts) {
             if (!debts.every(debt => {
-                if (!debt.name || !debt.balance) {
+                if (!debt.name || !debt.balance || !debt.apr) {
                     return false;
                 }
                 return true
@@ -201,11 +201,11 @@ export default {
         },
         goClicked() {
             if (!this.isValidDebts(this.debts)) {
-                alert("Oops! Make sure you name all your debts and include their non-zero balances!")
+                alert("Oops! Make sure you name all your debts and include their non-zero balances/min-payments!")
                 return;
             }
 
-            Axios.post('http://localhost:5000/save-debts', {
+            Axios.post('http://157.245.163.181:5000/save-debts', {
                 email: "zackalger@gmail.com",
                 debts: this.debts,
             })
