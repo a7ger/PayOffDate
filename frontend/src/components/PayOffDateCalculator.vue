@@ -184,7 +184,7 @@ export default {
         },
         isValidDebts(debts) {
             if (!debts.every(debt => {
-                if (!debt.name || !debt.balance) {
+                if (!debt.name || debt.balance <= 0 || debt.apr <= 0) {
                     return false;
                 }
                 return true
@@ -201,7 +201,7 @@ export default {
         },
         goClicked() {
             if (!this.isValidDebts(this.debts)) {
-                alert("Oops! Make sure you name all your debts and include their non-zero balances!")
+                alert("Oops! Make sure you name all your debts and include their non-zero balances/min-payments!")
                 return;
             }
 
