@@ -184,7 +184,7 @@ export default {
         },
         isValidDebts(debts) {
             if (!debts.every(debt => {
-                if (!debt.name || !debt.balance || !debt.apr) {
+                if (!debt.name || debt.balance <= 0 || debt.apr <= 0) {
                     return false;
                 }
                 return true
