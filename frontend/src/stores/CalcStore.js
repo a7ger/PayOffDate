@@ -27,6 +27,9 @@ export default new Vuex.Store({
                 state.debts.splice(index, 1);
             }
         },
+        setDebts(state, debts) {
+            state.debts = debts
+        },
     },
     getters: {
         debts(state) {
@@ -43,5 +46,8 @@ export default new Vuex.Store({
         removeDebt(state, id) {
             state.commit("removeDebt", id);
         },
+        setDebts(state, debts) {
+            state.commit("setDebts", debts)
+        }
     },
 });

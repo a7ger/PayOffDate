@@ -3,6 +3,7 @@
         <div id="calc-background">
             <div id="debt-list-div">
                 <DebtInfo v-for="debt in debts" :key="debt.id" :id="debt.id" @input="resetResults" @delete="resetResults"></DebtInfo>
+                <p v-if="debts.length <= 0">Add your first debt!</p>
                 <button id="add-debtInfo-button" @click="addDebtInfo">+</button>
             </div>
             <div id="bottom-half-div">
@@ -29,7 +30,7 @@
                         </div>
                     </div>
                     <div id="calculate-button-div">
-                        <button id="calculate-button" @click="goClicked">Calculate</button>
+                        <button id="calculate-button" class="action-button" @click="goClicked">Calculate</button>
                     </div>
                 </div>
                 <div id="results-div">
@@ -80,13 +81,8 @@
 
     #calculate-button {
         margin-top: 12px;
-        background-color: #00A3FF;
-        border-radius: .3125rem;
-        outline: none;
-        border: none;
         height: 2.1875rem;
         width: 100%;
-        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     }
 
     #bottom-half-div {
@@ -156,6 +152,7 @@
 import DebtInfo from './DebtInfo.vue';
 import lodash from 'lodash';
 import store from '@/stores/CalcStore.js';
+import Axios from 'axios';
 
 export default {
     name: 'PayOffDateCalculator',
@@ -208,6 +205,12 @@ export default {
             if (!this.isValidDebts(this.debts)) {
                 return;
             }
+
+            Axios.post('http://localhost:5000/save-debts', {
+                email: "zackalger@gmail.com",
+                debts: this.debts,
+            })
+
             this.resetResults();
             if (this.numMonthsDesired) {
                 this.results.extraPaymentNeeded = Math.ceil(this.calculateExtraPaymentNeeded(this.numMonthsDesired));
@@ -343,24 +346,8 @@ export default {
         addOneMonthInterest(balance, apr) {
             /* continuos compounding interest formula.
             12 is for 12 months in a year */
+            apr = apr/100.00
             return this.roundToNumDecimals(balance * Math.exp(apr/12), 3);
-        },
-        createTestData() {
-            this.addDebtInfo();
-            this.debts[0].name = "stu";
-            this.debts[0].balance = 54000;
-            this.debts[0].apr = 6.5;
-            this.debts[0].minPayment = 400;
-            this.addDebtInfo();
-            this.debts[1].name = "cc";
-            this.debts[1].balance = 4500;
-            this.debts[1].apr = 22.99;
-            this.debts[1].minPayment = 125;
-            this.addDebtInfo();
-            this.debts[2].name = "car";
-            this.debts[2].balance = 4000;
-            this.debts[2].apr = 2.99;
-            this.debts[2].minPayment = 300;
         },
         roundToNumDecimals(val, numDecimals) {
             val *= Math.pow(10, numDecimals);
@@ -410,12 +397,6 @@ export default {
                 this.numMonthsDesired = null;
             }
         },
-        // reset results on debts.count changing !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    },
-    created() {
-        //store.dispatch("clearDebts");
-        //this.createTestData();
-        this.addDebtInfo();
     },
 }
 </script>

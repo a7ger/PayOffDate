@@ -4,22 +4,22 @@
             <div class="row-input-section" @input="$emit('input')">
                 <div class="label-input-div">
                     <label for="nameInput" class="nameInputLabel">Name</label>
-                    <input type="text" class="nameInput" v-model="nameInput">
+                    <input type="text" class="nameInput" v-model="nameInput" autocomplete="off">
                 </div>
                 <div class="label-input-div">
                     <label for="balanceInput" class="balanceInputLabel">Balance</label>
-                    <input type="text" class="balanceInput" v-model="balanceInput">
+                    <input type="text" class="balanceInput" v-model="balanceInput" autocomplete="off">
                 </div>
                 <div class="label-input-div">
                     <label for="aprInput" class="aprInputLabel">APR</label>
-                    <input type="text" class="aprInput" v-model="aprInput">
+                    <input type="text" class="aprInput" v-model="aprInput" autocomplete="off">
                     <div class="aprPercentSignDiv">
                         %
                     </div>
                 </div>
                 <div class="label-input-div">
                     <label for="minPaymentInput" class="minPaymentInputLabel">Min Pmnt</label>
-                    <input type="text" class="minPaymentInput" v-model="minPaymentInput">
+                    <input type="text" class="minPaymentInput" v-model="minPaymentInput" autocomplete="off">
                 </div>
             </div>
             <div class="remove-button-div">
@@ -160,7 +160,7 @@
                 this.debtInfo.balance = parseFloat(val);
             },
             aprInput(val) {
-                this.debtInfo.apr = parseFloat(val)/100.00; // divide by 100 to convert from percentage to decimal
+                this.debtInfo.apr = parseFloat(val); // divide by 100 to convert from percentage to decimal
             },
             minPaymentInput(val) {
                 this.debtInfo.minPayment = parseFloat(val);
