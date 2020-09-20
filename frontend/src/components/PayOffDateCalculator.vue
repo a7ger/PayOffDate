@@ -205,7 +205,7 @@ export default {
                 return;
             }
 
-            Axios.post('http://localhost:5000/save-debts', {
+            Axios.post('http://157.245.163.181:5000/save-debts', {
                 email: "zackalger@gmail.com",
                 debts: this.debts,
             })

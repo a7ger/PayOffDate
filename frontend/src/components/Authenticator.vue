@@ -53,7 +53,7 @@
         methods: {
             signInClicked: function () {
                 var that = this
-                axios.post('http://localhost:5000/sign_in', this.inputs).then(function (res) {
+                axios.post('http://157.245.163.181:5000/sign_in', this.inputs).then(function (res) {
                     that.loggedInUser.firstName = res.data.firstName
                     that.isLoggedIn = true
                     // console.log(res.data.debts)

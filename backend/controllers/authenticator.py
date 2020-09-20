@@ -5,7 +5,7 @@ import json
 
 app = Flask(__name__)
 
-db = MongoClient('mongodb://localhost:27010')['payoffdate']
+db = MongoClient('mongodb://localhost:27017')['payoffdate']
 
 # items = client['museum']['items']
 # pprint(items.find_one())
