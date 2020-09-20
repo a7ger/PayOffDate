@@ -184,24 +184,24 @@ export default {
         },
         isValidDebts(debts) {
             if (!debts.every(debt => {
-                if (!debt.name || debt.balance <= 0 || debt.apr <= 0) {
+                if (!debt.name || debt.balance <= 0 || debt.apr < 0 || debt.minPayment < 1) {
                     return false;
                 }
                 return true
             })) {
+                alert("Oops! Make sure you name all your debts, include their positive balances, include their non-negative apr and their min payments of $1 or more!")
                 return false;
             }
 
             var name = [];
             if (!this.debts.every(debt => this.isValidMinPmnt(debt, name)) && name.length > 0) {
-                alert("The minimum paymnet for your debt named \"" + name[0] + "\" is too low. Your balance would increase monthly with that balance, apr and minimum payment combination.");
+                alert("The minimum paymnet for your debt named \"" + name[0] + "\" is too low. Your balance would never decrease with that balance, apr and minimum payment combination. Minimum paymet must be at least $1");
                 return false;
             }
             return true;
         },
         goClicked() {
             if (!this.isValidDebts(this.debts)) {
-                alert("Oops! Make sure you name all your debts and include their non-zero balances/min-payments!")
                 return;
             }
 
@@ -369,7 +369,7 @@ export default {
         isValidMinPmnt(debt, name) {
             var newBalance = this.addOneMonthInterest(debt.balance, debt.apr);
             newBalance -= debt.minPayment;
-            if (newBalance > debt.balance) {
+            if (newBalance >= debt.balance) {
                 name.push(debt.name);
                 return false;
             }
