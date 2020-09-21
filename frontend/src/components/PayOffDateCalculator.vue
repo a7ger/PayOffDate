@@ -346,6 +346,9 @@ export default {
             /* continuos compounding interest formula.
             12 is for 12 months in a year */
             apr = apr/100.00
+            if (apr == 0){
+                return balance;
+            }
             return this.roundToNumDecimals(balance * Math.exp(apr/12), 3);
         },
         roundToNumDecimals(val, numDecimals) {
