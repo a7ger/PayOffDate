@@ -6,6 +6,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         debts: [],
+        loggedInEmail: "",
     },
     mutations: {
         addDebtInfo(state) {
@@ -30,10 +31,16 @@ export default new Vuex.Store({
         setDebts(state, debts) {
             state.debts = debts
         },
+        setLoggedInEmail(state, email) {
+            state.loggedInEmail = email
+        },
     },
     getters: {
         debts(state) {
             return state.debts;
+        },
+        loggedInEmail(state) {
+            return state.loggedInEmail;
         },
     },
     actions: {
@@ -48,6 +55,9 @@ export default new Vuex.Store({
         },
         setDebts(state, debts) {
             state.commit("setDebts", debts)
-        }
+        },
+        setLoggedInEmail(state, email) {
+            state.commit("setLoggedInEmail", email)
+        },
     },
 });

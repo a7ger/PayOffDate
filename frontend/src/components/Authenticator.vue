@@ -29,7 +29,7 @@
 </style>>
 
 <script>
-    import axios from 'axios';
+    import Axios from 'axios';
     import store from '@/stores/CalcStore.js';
 
     export default {
@@ -53,10 +53,10 @@
         methods: {
             signInClicked: function () {
                 var that = this
-                axios.post('http://157.245.163.181:5000/sign_in', this.inputs).then(function (res) {
+                Axios.post('http://157.245.163.181:5000/sign_in', this.inputs).then(function (res) {
                     that.loggedInUser.firstName = res.data.firstName
                     that.isLoggedIn = true
-                    // console.log(res.data.debts)
+                    store.dispatch('setLoggedInEmail', that.inputs.email)
                     store.dispatch('setDebts', res.data.debts)
                 })
             },

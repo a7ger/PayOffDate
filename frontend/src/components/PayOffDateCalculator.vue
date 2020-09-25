@@ -152,7 +152,6 @@
 import DebtInfo from './DebtInfo.vue';
 import lodash from 'lodash';
 import store from '@/stores/CalcStore.js';
-import Axios from 'axios';
 
 export default {
     name: 'PayOffDateCalculator',
@@ -204,11 +203,6 @@ export default {
             if (!this.isValidDebts(this.debts)) {
                 return;
             }
-
-            Axios.post('http://157.245.163.181:5000/save-debts', {
-                email: "zackalger@gmail.com",
-                debts: this.debts,
-            })
 
             this.resetResults();
             if (this.numMonthsDesired) {

@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <Authenticator></Authenticator>
+    <button @click="saveDebtsButtonClicked" class="action-button">Save Debts</button>
     <PayOffDateCalculator id="calc"></PayOffDateCalculator>
     <!-- <todo></todo> -->
   </div>
@@ -10,6 +11,8 @@
 <script>
   import PayOffDateCalculator from './components/PayOffDateCalculator.vue'
   import Authenticator from './components/Authenticator.vue'
+  import Axios from 'axios';
+  import store from '@/stores/CalcStore.js';
 
   export default {
     name: 'App',
@@ -17,6 +20,14 @@
       PayOffDateCalculator,
       Authenticator,
     },
+    methods: {
+      saveDebtsButtonClicked: function() {
+        Axios.post('http://157.245.163.181:5000/save-debts', {
+          email: store.getters.loggedInEmail,
+          debts: store.getters.debts,
+        })
+      },
+    }
   }
 </script>
 
