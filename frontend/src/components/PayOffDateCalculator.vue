@@ -231,8 +231,8 @@ export default {
             return newDate.toLocaleDateString();
         },
         calculateExtraPaymentNeeded(targetMonths) {
-            if (targetMonths <= 0) {
-                alert("You must choose a number of months of 1 or more!");
+            if (targetMonths <= 1) {
+                alert("You must choose a number of months of 2 or more!");
             }
             var maxExtra = this.sumOfBalances(this.debts) - this.sumOfMinPayments(this.debts);
             var minExtra = 0;
@@ -240,6 +240,11 @@ export default {
 
             if (targetMonths > curMonths) {
                 alert("If you just pay your minimum payments you will beat your goal and be debt free in " + curMonths + "!");
+                return;
+            }
+
+            if (maxExtra <= minExtra) {
+                alert("an error has occured: 10227")
                 return;
             }
             
@@ -257,7 +262,7 @@ export default {
             return curExtra;
         },
         calcCurExtra(minExtra, maxExtra) {
-            return (minExtra + maxExtra) / 2;
+            return this.roundToNumDecimals((minExtra + maxExtra) / 2, 2);
         },
         calculateNumMonthsSnowball(extraMonthlyFunds) {
             var sortedDebtsCopy = lodash.cloneDeep(this.debts).sort(function(a,b) {
@@ -283,14 +288,13 @@ export default {
                         }
                     }
                 }
-
                 // distribute remaining funds starting at the lowest balance debt
                 while (monthlyFundsCopy >= 0.01 && this.sumOfBalances(sortedDebtsCopy) >= 0.01) {
                     for (var debt_ of sortedDebtsCopy) {
                         if (debt_.balance >= 0.01){
                             if (debt_.balance <= monthlyFundsCopy) {
-                                debt_.balance = 0;
                                 monthlyFundsCopy = this.roundToNumDecimals(monthlyFundsCopy - debt_.balance, 3);
+                                debt_.balance = 0;
                             } else {
                                 debt_.balance = this.roundToNumDecimals(debt_.balance - monthlyFundsCopy, 3);
                                 monthlyFundsCopy = 0;
@@ -339,11 +343,11 @@ export default {
         addOneMonthInterest(balance, apr) {
             /* continuos compounding interest formula.
             12 is for 12 months in a year */
-            apr = apr/100.00
             if (apr == 0){
                 return balance;
             }
-            return this.roundToNumDecimals(balance * Math.exp(apr/12), 3);
+            var aprCpy = apr/100.00
+            return this.roundToNumDecimals(balance * this.roundToNumDecimals(Math.exp(aprCpy/12), 6), 3);
         },
         roundToNumDecimals(val, numDecimals) {
             val *= Math.pow(10, numDecimals);
@@ -351,9 +355,7 @@ export default {
             return val / Math.pow(10, numDecimals);
         },
         resetResults() {
-            //console.log("before: " + JSON.stringify(this.results));
             Object.keys(this.results).forEach(resultName => this.results[resultName] = null);
-            //console.log("after: " + JSON.stringify(this.results));
         },
         desiredExtraPmntInputChanged() {
             this.numMonthsDesiredInput = null;
