@@ -239,7 +239,7 @@ export default {
             var curMonths = this.calculateNumMonthsSnowball(0);
 
             if (targetMonths > curMonths) {
-                alert("If you just pay your minimum payments you will beat your goal and be debt free in " + curMonths + "!");
+                alert("If you just pay your minimum payments you will beat your goal and be debt free in " + curMonths + " months!");
                 return;
             }
 
